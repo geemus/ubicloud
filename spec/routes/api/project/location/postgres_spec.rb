@@ -152,7 +152,7 @@ RSpec.describe Clover, "postgres" do
       it "missing required key" do
         header "Content-Type", "application/json"
         post "/api/project/#{project.ubid}/location/eu-central-h1/postgres/test-pg", {
-          unix_user: "ha_type"
+          ha_type: "sync"
         }.to_json
 
         expect(last_response).to have_api_error(400, "Validation failed for following fields: body", {"body" => "Request body must include required parameters: size"})
