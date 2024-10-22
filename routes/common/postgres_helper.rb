@@ -107,7 +107,10 @@ class Routes::Common::PostgresHelper < Routes::Common::Base
 
   def get_firewall_rule
     Authorization.authorize(@user.id, "Postgres:Firewall:view", @resource.id)
-    Serializers::PostgresFirewallRule.serialize(@resource.firewall_rules)
+    {
+      items: Serializers::PostgresFirewallRule.serialize(@resource.firewall_rules),
+      count: @resource.firewall_rules.count
+    }
   end
 
   def delete_firewall_rule(firewall_rule_ubid)
