@@ -719,21 +719,6 @@ paths:
           $ref: '#/components/responses/Error'
       tags:
         - Postgres Database
-  '/project/{project_id}/location/{location}/postgres/_{postgres_database_id}/failover':
-    parameters:
-      - $ref: '#/components/parameters/project_id'
-      - $ref: '#/components/parameters/location'
-      - $ref: '#/components/parameters/postgres_database_id'
-    post:
-      operationId: failoverPostgresDatabaseWithID
-      summary: Failover a specific Postgres Database with ID
-      responses:
-        '200':
-          $ref: '#/components/responses/PostgresDatabase'
-        default:
-          $ref: '#/components/responses/Error'
-      tags:
-        - Postgres Database
   '/project/{project_id}/location/{location}/postgres/_{postgres_database_id}/firewall-rule':
     parameters:
       - $ref: '#/components/parameters/location'
@@ -772,6 +757,21 @@ paths:
           $ref: '#/components/responses/Error'
       tags:
         - Postgres Firewall Rule
+  '/project/{project_id}/location/{location}/postgres/{postgres_database_id_or_name}/failover':
+    parameters:
+      - $ref: '#/components/parameters/project_id'
+      - $ref: '#/components/parameters/location'
+      - $ref: '#/components/parameters/postgres_database_id_or_name'
+    post:
+      operationId: failoverPostgresDatabaseWithID
+      summary: Failover a specific Postgres Database with ID or name
+      responses:
+        '200':
+          $ref: '#/components/responses/PostgresDatabase'
+        default:
+          $ref: '#/components/responses/Error'
+      tags:
+        - Postgres Database
   '/project/{project_id}/location/{location}/postgres/{postgres_database_name}':
     parameters:
       - $ref: '#/components/parameters/project_id'
@@ -853,21 +853,6 @@ paths:
               schema:
                 type: string
                 format: binary
-        default:
-          $ref: '#/components/responses/Error'
-      tags:
-        - Postgres Database
-  '/project/{project_id}/location/{location}/postgres/{postgres_database_name}/failover':
-    parameters:
-      - $ref: '#/components/parameters/project_id'
-      - $ref: '#/components/parameters/location'
-      - $ref: '#/components/parameters/postgres_database_name'
-    post:
-      operationId: failoverPostgresDatabaseWithName
-      summary: Failover a specific Postgres Database with name
-      responses:
-        '200':
-          $ref: '#/components/responses/PostgresDatabase'
         default:
           $ref: '#/components/responses/Error'
       tags:
@@ -1294,6 +1279,18 @@ components:
         type: string
         example: pgn30gjk1d1e2jj34v9x0dq4rp
         pattern: '^pg[0-9a-hj-km-np-tv-z]{24}$'
+    postgres_database_id_or_name:
+      description: Postgres database ID or name
+      in: path
+      name: postgres_database_id_or_name
+      required: true
+      schema:
+        oneOf:
+          - type: string
+            example: _pgn30gjk1d1e2jj34v9x0dq4rp
+            pattern: '^_pg[0-9a-hj-km-np-tv-z]{24}$'
+          - type: string
+            pattern: '^[^_].*$'
     postgres_database_name:
       description: Postgres database name
       in: path
