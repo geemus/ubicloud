@@ -11,7 +11,7 @@ RSpec.describe Clover, "postgres" do
     Prog::Postgres::PostgresResourceNexus.assemble(
       project_id: project.id,
       location: "hetzner-fsn1",
-      name: "pg-with-permission",
+      name: "postgres-with-permission",
       target_vm_size: "standard-2",
       target_storage_size_gib: 128
     ).subject
@@ -35,7 +35,7 @@ RSpec.describe Clover, "postgres" do
         [:post, "/project/#{project.ubid}/location/#{pg.display_location}/postgres/_#{pg.ubid}/restore"],
         [:post, "/project/#{project.ubid}/location/#{pg.display_location}/postgres/#{pg.name}/reset-superuser-password"],
         [:post, "/project/#{project.ubid}/location/#{pg.display_location}/postgres/_#{pg.ubid}/reset-superuser-password"],
-        [:post, "/project/#{project.ubid}/location/#{pg.display_location}/postgres/_#{pg.ubid}/failover"],
+        [:post, "/project/#{project.ubid}/location/#{pg.display_location}/postgres/#{pg.ubid}/failover"],
         [:get, "/project/#{project.ubid}/location/#{pg.display_location}/postgres/#{pg.name}/ca-certificates"]
       ].each do |method, path|
         send method, path
@@ -150,7 +150,7 @@ RSpec.describe Clover, "postgres" do
       end
 
       it "firewall-rule pg ubid" do
-        post "/project/#{project.ubid}/location/#{pg.display_location}/postgres/_#{pg.ubid}/firewall-rule", {
+        post "/project/#{project.ubid}/location/#{pg.display_location}/postgres/#{pg.ubid}/firewall-rule", {
           cidr: "0.0.0.0/24"
         }.to_json
 
@@ -253,7 +253,7 @@ RSpec.describe Clover, "postgres" do
         st.update(label: "wait")
         expect(PostgresServer).to receive(:run_query).and_return "16/B374D848"
 
-        post "/project/#{project.ubid}/location/#{pg.display_location}/postgres/_#{pg.ubid}/failover"
+        post "/project/#{project.ubid}/location/#{pg.display_location}/postgres/#{pg.ubid}/failover"
 
         expect(last_response.status).to eq(200)
       end
@@ -262,7 +262,7 @@ RSpec.describe Clover, "postgres" do
         pg.save_changes
         pg.representative_server.update(timeline_access: "fetch")
 
-        post "/project/#{project.ubid}/location/#{pg.display_location}/postgres/_#{pg.ubid}/failover"
+        post "/project/#{project.ubid}/location/#{pg.display_location}/postgres/#{pg.ubid}/failover"
 
         expect(last_response).to have_api_error(400, "Failover cannot be triggered during restore!")
       end
@@ -270,7 +270,7 @@ RSpec.describe Clover, "postgres" do
       it "failover no ff base image" do
         pg.save_changes
 
-        post "/project/#{project.ubid}/location/#{pg.display_location}/postgres/_#{pg.ubid}/failover"
+        post "/project/#{project.ubid}/location/#{pg.display_location}/postgres/#{pg.ubid}/failover"
 
         expect(last_response).to have_api_error(400, "Failover cannot be triggered for this resource!")
       end
@@ -279,7 +279,7 @@ RSpec.describe Clover, "postgres" do
         pg.flavor = PostgresResource::Flavor::PARADEDB
         pg.save_changes
 
-        post "/project/#{project.ubid}/location/#{pg.display_location}/postgres/_#{pg.ubid}/failover"
+        post "/project/#{project.ubid}/location/#{pg.display_location}/postgres/#{pg.ubid}/failover"
 
         expect(last_response).to have_api_error(400, "There is not a suitable standby server to failover!")
       end
@@ -318,7 +318,7 @@ RSpec.describe Clover, "postgres" do
       end
 
       it "show firewall" do
-        get "/project/#{project.ubid}/location/#{pg.display_location}/postgres/_#{pg.ubid}/firewall-rule"
+        get "/project/#{project.ubid}/location/#{pg.display_location}/postgres/#{pg.ubid}/firewall-rule"
 
         expect(last_response.status).to eq(200)
         expect(JSON.parse(last_response.body)["items"][0]["cidr"]).to eq("0.0.0.0/0")
@@ -386,7 +386,7 @@ RSpec.describe Clover, "postgres" do
       end
 
       it "firewall-rule ubid" do
-        delete "/project/#{project.ubid}/location/#{pg.display_location}/postgres/_#{pg.ubid}/firewall-rule/#{pg.firewall_rules.first.ubid}"
+        delete "/project/#{project.ubid}/location/#{pg.display_location}/postgres/#{pg.ubid}/firewall-rule/#{pg.firewall_rules.first.ubid}"
 
         expect(last_response.status).to eq(204)
       end
